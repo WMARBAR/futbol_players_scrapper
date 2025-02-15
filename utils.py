@@ -110,3 +110,40 @@ class Utils:
             merged_df = pd.concat([merged_df, df.iloc[:, 1:]], axis=1)
 
         return merged_df
+
+   def merge_dataframes(self,df1, df2, key_df1, key_df2):
+        """
+        Une df1 con df2 utilizando key_df1 de df1 y key_df2 de df2.
+        Retorna df1 con sus columnas originales más las columnas agregadas de df2.
+        """
+        # Realizar el merge conservando todas las filas de df1
+        df_merged = df1.merge(df2, left_on=key_df1, right_on=key_df2, how='left')
+        
+        return df_merged
+
+   def add_comparison_column(self,df1, nombrecol1, nombrecol2):
+        """
+        Agrega una nueva columna al DataFrame que indica si los valores en nombrecol1 y nombrecol2 son iguales (1) o diferentes (0).
+        La nueva columna se nombra como 'nombrecol1_AND_nombrecol2'.
+        """
+        # Nombre de la nueva columna
+        new_col_name = f"{nombrecol1}_AND_{nombrecol2}"
+        
+        # Crear la nueva columna con 1 si los valores son iguales y 0 si son diferentes
+        df1[new_col_name] = (df1[nombrecol1] == df1[nombrecol2]).astype(int)
+        
+        return df1
+
+   def guardar_excel(self,df, nombre_archivo):
+        """
+        Guarda un DataFrame en un archivo Excel con el nombre especificado.
+        El archivo tendrá la extensión .xlsx.
+        """
+        # Asegurar que el nombre tenga la extensión .xlsx
+        if not nombre_archivo.endswith('.xlsx'):
+            nombre_archivo += '.xlsx'
+        
+        # Guardar el DataFrame en un archivo Excel
+        df.to_excel(nombre_archivo, index=False)
+        
+        print(f"Archivo guardado como: {nombre_archivo}")
