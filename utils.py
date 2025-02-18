@@ -309,4 +309,21 @@ class Utils:
         """
         df_combinado = pd.concat([df1, df2], ignore_index=True)
         return df_combinado
+    
+   def cargar_excel(self,ruta_archivo):
+        """
+        Carga un archivo Excel y lo devuelve como un DataFrame de pandas.
+        
+        Parámetros:
+        ruta_archivo (str): Ruta del archivo Excel a cargar.
+        
+        Retorna:
+        pd.DataFrame: DataFrame con los datos del archivo Excel.
+        """
+        try:
+            df = pd.read_excel(ruta_archivo)
+            return df
+        except Exception as e:
+            print(f"Error al cargar el archivo: {e}")
+            return None
 
