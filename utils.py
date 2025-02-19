@@ -327,3 +327,13 @@ class Utils:
             print(f"Error al cargar el archivo: {e}")
             return None
 
+   def filtrar_dataframe(self,df, columna, valor):
+        """
+        Filtra un DataFrame por una columna específica y un valor dado.
+        
+        :param df: DataFrame a filtrar
+        :param columna: Nombre de la columna por la que se quiere filtrar
+        :param valor: Valor a buscar en la columna
+        :return: DataFrame filtrado
+        """
+        return df[df[columna] == valor]
