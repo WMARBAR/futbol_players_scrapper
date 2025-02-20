@@ -161,6 +161,58 @@ class Utils:
 
         return jugadores_por_equipo, posiciones_por_equipo, edades_por_equipo, partidos_por_equipo, clubes_por_equipo
 
+
+   def buscar_wikipedia_jugadores(self, df):
+        """
+        Busca en DuckDuckGo los nombres de los jugadores y obtiene su enlace de Wikipedia si existe.
+
+        Parámetros:
+        df (pd.DataFrame): DataFrame con la columna 'Nombre_jugador'.
+
+        Retorna:
+        pd.DataFrame: DataFrame original con una columna adicional 'wiki_link'.
+        """
+        # Configuración del WebDriver
+        driver = webdriver.Chrome()
+        wait = WebDriverWait(driver, 10)
+
+        wiki_links = []  # Lista para almacenar los enlaces
+
+        for nombre in df["Nombre_jugador"]:
+            try:
+                # Buscar en DuckDuckGo
+                query = f"{nombre} futbolista site:wikipedia.org"
+                url_busqueda = f"https://www.duckduckgo.com/?q={query.replace(' ', '+')}"
+                driver.get(url_busqueda)
+                
+                # Esperar a que se cargue la página
+                time.sleep(2)
+                soup = BeautifulSoup(driver.page_source, "html.parser")
+
+                # Buscar el primer enlace de Wikipedia en los resultados
+                link_wiki = None
+                for enlace in soup.find_all("a", href=True):
+                    href = enlace["href"]
+                    if "wikipedia.org/wiki/" in href:
+                        link_wiki = href
+                        break
+
+                # Agregar el resultado
+                wiki_links.append(link_wiki if link_wiki else "No encontrado")
+
+            except Exception as e:
+                print(f"Error con {nombre}: {e}")
+                wiki_links.append("Error")
+
+        # Cerrar el navegador
+        driver.quit()
+
+        # Agregar los enlaces al DataFrame original
+        df["wiki_link"] = wiki_links
+        
+        return df
+
+
    def paises_continente(self):
        # Lista de países
         paises = [
