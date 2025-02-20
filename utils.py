@@ -11,7 +11,10 @@ import re
 
 
 class Utils:
-    
+
+
+
+  
    def ft_players_scrapping(self,link):
         # Iniciar el navegador
         driver = webdriver.Chrome()
@@ -160,6 +163,80 @@ class Utils:
         driver.quit()  # Cerrar el navegador
 
         return jugadores_por_equipo, posiciones_por_equipo, edades_por_equipo, partidos_por_equipo, clubes_por_equipo
+
+
+
+
+   def scrap_wikiplayers_and_add_data(self,df, column_name):
+            """
+            Función que toma un DataFrame y el nombre de la columna que contiene los links.
+            Realiza web scraping en cada link para extraer:
+            - 'player_altura': La altura del jugador.
+            - 'debut_year': El año de debut del jugador.
+
+            Parámetros:
+                df (pd.DataFrame): DataFrame con los datos.
+                column_name (str): Nombre de la columna que contiene los enlaces de Wikipedia.
+
+            Retorna:
+                pd.DataFrame: El DataFrame actualizado con las nuevas columnas 'player_altura' y 'debut_year'.
+            """
+
+            # Configuración del driver de Selenium
+            driver = webdriver.Chrome()
+
+            # Listas para almacenar los datos extraídos
+            alturas = []
+            debut_years = []
+
+            for link in df[column_name]:  # ✅ Definimos correctamente 'link' dentro del bucle
+                try:
+                    if not isinstance(link, str) or not link.strip():
+                        alturas.append("N/A")
+                        debut_years.append("N/A")
+                        continue  # Si el enlace es inválido, salta al siguiente
+
+                    driver.get(link)
+                    time.sleep(5)  # Esperar a que la página cargue completamente
+
+                    html = driver.page_source
+                    soup = BeautifulSoup(html, 'html.parser')
+
+                    # 🏆 EXTRAER ALTURA
+                    altura_elemento = soup.find('th', string=lambda text: text and "Altura" in text)
+                    altura = "N/A"
+                    if altura_elemento:
+                        altura_td = altura_elemento.find_next_sibling('td')  # Extraer el <td> siguiente
+                        if altura_td:
+                            altura_texto = altura_td.text.strip()
+                            altura_match = re.search(r"[\d,\.]+", altura_texto)  # Extraer el número de la altura
+                            altura = altura_match.group(0) if altura_match else "N/A"
+                    alturas.append(altura)
+
+                    # 🚀 EXTRAER AÑO DE DEBUT
+                    debut_elemento = soup.find('th', string=lambda text: text and "Debut" in text)
+                    debut_year = "N/A"
+                    if debut_elemento:
+                        debut_td = debut_elemento.find_next_sibling('td')  # Extraer el <td> siguiente
+                        if debut_td:
+                            debut_texto = debut_td.text.strip()
+                            debut_match = re.search(r"\b\d{4}\b", debut_texto)  # Extraer el primer año de 4 dígitos
+                            debut_year = debut_match.group(0) if debut_match else "N/A"
+                    debut_years.append(debut_year)
+
+                except Exception as e:
+                    print(f"Error con {link}: {e}")
+                    alturas.append("N/A")
+                    debut_years.append("N/A")
+
+            driver.quit()
+
+            # Añadir las nuevas columnas con los datos extraídos
+            df["player_altura"] = alturas
+            df["debut_year"] = debut_years
+
+            return df
+
 
 
    def buscar_wikipedia_jugadores(self, df):
