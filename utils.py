@@ -239,7 +239,7 @@ class Utils:
 
 
 
-   def buscar_wikipedia_jugadores(self, df):
+   def buscar_wikipedia_jugadores(self, df,jugador,year):
         """
         Busca en DuckDuckGo los nombres de los jugadores y obtiene su enlace de Wikipedia si existe.
 
@@ -255,10 +255,10 @@ class Utils:
 
         wiki_links = []  # Lista para almacenar los enlaces
 
-        for nombre in df["Nombre_jugador"]:
+        for nombre in df[jugador]:
             try:
                 # Buscar en DuckDuckGo
-                query = f"{nombre} futbolista site:wikipedia.org"
+                query = f"{nombre} futbolista  mundial {year} wikipedia site:wikipedia.org"
                 url_busqueda = f"https://www.duckduckgo.com/?q={query.replace(' ', '+')}"
                 driver.get(url_busqueda)
                 
@@ -451,6 +451,23 @@ class Utils:
         """
         try:
             df = pd.read_excel(ruta_archivo)
+            return df
+        except Exception as e:
+            print(f"Error al cargar el archivo: {e}")
+            return None
+
+   def cargar_csv(self,ruta_archivo):
+        """
+        Carga un archivo Excel y lo devuelve como un DataFrame de pandas.
+        
+        Parámetros:
+        ruta_archivo (str): Ruta del archivo Excel a cargar.
+        
+        Retorna:
+        pd.DataFrame: DataFrame con los datos del archivo Excel.
+        """
+        try:
+            df = pd.read_csv(ruta_archivo)
             return df
         except Exception as e:
             print(f"Error al cargar el archivo: {e}")
